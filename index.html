@@ -2,61 +2,94 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ Mobile scaling -->
   <title>Attendance Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f9;
-      padding: 20px;
+      margin: 0;
+      padding: 10px;
       color: #000;
       transition: all 0.3s ease;
     }
+
     h2, h3 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+      font-size: 1.4rem;
     }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
+      font-size: 0.9rem;
     }
+
     th, td {
       border: 1px solid #ddd;
-      padding: 8px;
+      padding: 10px;
       text-align: center;
     }
+
     th {
       background: #4CAF50;
       color: white;
+      font-size: 1rem;
     }
+
     input[type="checkbox"] {
       transform: scale(1.3);
       cursor: pointer;
     }
+
     tr:nth-child(even) {
       background: #f9f9f9;
     }
+
     .controls {
-      margin: 15px 0;
+      margin: 10px 0;
       text-align: center;
     }
+
+    label {
+      display: inline-block;
+      margin: 5px;
+    }
+
+    input[type="date"] {
+      padding: 6px;
+      font-size: 0.9rem;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
     button {
-      padding: 8px 16px;
+      padding: 10px 16px;
       margin: 5px;
       border: none;
       border-radius: 6px;
       background: #4CAF50;
       color: white;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 0.95rem;
     }
+
     button:hover {
       background: #45a049;
     }
+
     #statsTable {
-      margin-top: 20px;
+      margin-top: 15px;
       display: none;
     }
 
@@ -65,63 +98,102 @@
       background: #121212;
       color: #e0e0e0;
     }
+
     body.dark table {
       background: #1e1e1e;
       color: #ddd;
     }
+
     body.dark th {
       background: #2e7d32;
     }
+
     body.dark tr:nth-child(even) {
       background: #1a1a1a;
     }
+
     body.dark button {
       background: #2e7d32;
+    }
+
+    /* 📱 Mobile Responsive Design */
+    @media (max-width: 600px) {
+      h2, h3 {
+        font-size: 1.2rem;
+      }
+
+      th, td {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+      }
+
+      button {
+        width: 90%;
+        font-size: 1rem;
+        padding: 12px;
+      }
+
+      input[type="date"] {
+        width: 90%;
+        margin-bottom: 8px;
+      }
+
+      .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      table {
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Attendance Tracker - Semester 1</h2>
+  <div class="container">
+    <h2>Attendance Tracker - Semester 1</h2>
 
-  <div class="controls">
-    <label for="attendanceDate"><b>Select Date:</b></label>
-    <input type="date" id="attendanceDate" onchange="loadTimetable()">
-    <button onclick="saveAttendance()">Save Attendance</button>
-    <button onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
+    <div class="controls">
+      <label for="attendanceDate"><b>Select Date:</b></label>
+      <input type="date" id="attendanceDate" onchange="loadTimetable()">
+      <button onclick="saveAttendance()">Save Attendance</button>
+      <button onclick="toggleTheme()">🌙 Toggle Dark Mode</button>
+    </div>
+
+    <table id="attendanceTable">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Subject</th>
+          <th>Present?</th>
+        </tr>
+      </thead>
+      <tbody id="daySchedule"></tbody>
+    </table>
+
+    <h3>📊 Attendance Statistics</h3>
+    <div class="controls">
+      <label>From:</label>
+      <input type="date" id="fromDate">
+      <label>To:</label>
+      <input type="date" id="toDate">
+      <button onclick="calculateStats()">Calculate Attendance</button>
+      <button onclick="clearAll()">Clear All Data</button>
+    </div>
+
+    <table id="statsTable">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Attended</th>
+          <th>Total</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody id="statsBody"></tbody>
+    </table>
   </div>
-
-  <table id="attendanceTable">
-    <thead>
-      <tr>
-        <th>Period</th>
-        <th>Subject</th>
-        <th>Present?</th>
-      </tr>
-    </thead>
-    <tbody id="daySchedule"></tbody>
-  </table>
-
-  <h3>📊 Attendance Statistics</h3>
-  <div class="controls">
-    <label>From:</label>
-    <input type="date" id="fromDate">
-    <label>To:</label>
-    <input type="date" id="toDate">
-    <button onclick="calculateStats()">Calculate Attendance</button>
-    <button onclick="clearAll()">Clear All Data</button>
-  </div>
-
-  <table id="statsTable">
-    <thead>
-      <tr>
-        <th>Subject</th>
-        <th>Attended</th>
-        <th>Total</th>
-        <th>Percentage</th>
-      </tr>
-    </thead>
-    <tbody id="statsBody"></tbody>
-  </table>
 
   <script>
     // 📌 Timetable mapping (Mon–Fri)
@@ -163,65 +235,63 @@
     };
 
     // 📌 Load timetable for selected date
-    // 📌 Load timetable for selected date
-function loadTimetable() {
-  const dateInput = document.getElementById("attendanceDate").value;
-  if (!dateInput) return;
+    function loadTimetable() {
+      const dateInput = document.getElementById("attendanceDate").value;
+      if (!dateInput) return;
 
-  const date = new Date(dateInput);
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const weekday = days[date.getDay()];
+      const date = new Date(dateInput);
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const weekday = days[date.getDay()];
 
-  const tbody = document.getElementById("daySchedule");
-  tbody.innerHTML = "";
+      const tbody = document.getElementById("daySchedule");
+      tbody.innerHTML = "";
 
-  if (!timetable[weekday]) {
-    tbody.innerHTML = `<tr><td colspan="3">No classes on ${weekday}</td></tr>`;
-    return;
-  }
+      if (!timetable[weekday]) {
+        tbody.innerHTML = `<tr><td colspan="3">No classes on ${weekday}</td></tr>`;
+        return;
+      }
 
-  // ✅ Load saved data for this date
-  let data = JSON.parse(localStorage.getItem("attendanceData") || "{}");
-  let savedDay = data[dateInput] || {};
+      // ✅ Load saved data for this date
+      let data = JSON.parse(localStorage.getItem("attendanceData") || "{}");
+      let savedDay = data[dateInput] || {};
 
-  timetable[weekday].forEach(([time, subject]) => {
-    let subjData = savedDay[subject] || { attended: 0, total: 0 };
-    let checked = subjData.attended > 0 ? "checked" : "";
-    tbody.innerHTML += `
-      <tr>
-        <td>${time}</td>
-        <td>${subject}</td>
-        <td><input type="checkbox" data-subject="${subject}" ${checked}></td>
-      </tr>
-    `;
-  });
-}
+      timetable[weekday].forEach(([time, subject]) => {
+        let subjData = savedDay[subject] || { attended: 0, total: 0 };
+        let checked = subjData.attended > 0 ? "checked" : "";
+        tbody.innerHTML += `
+          <tr>
+            <td>${time}</td>
+            <td>${subject}</td>
+            <td><input type="checkbox" data-subject="${subject}" ${checked}></td>
+          </tr>
+        `;
+      });
+    }
 
-// 📌 Save or Update attendance
-function saveAttendance() {
-  const date = document.getElementById("attendanceDate").value;
-  if (!date) {
-    alert("Please select a date!");
-    return;
-  }
+    // 📌 Save or Update attendance
+    function saveAttendance() {
+      const date = document.getElementById("attendanceDate").value;
+      if (!date) {
+        alert("Please select a date!");
+        return;
+      }
 
-  const checkboxes = document.querySelectorAll("#daySchedule input[type='checkbox']");
-  let dayData = {};
+      const checkboxes = document.querySelectorAll("#daySchedule input[type='checkbox']");
+      let dayData = {};
 
-  checkboxes.forEach(cb => {
-    const subject = cb.dataset.subject;
-    if (!dayData[subject]) dayData[subject] = { attended: 0, total: 0 };
-    dayData[subject].total++;
-    if (cb.checked) dayData[subject].attended++;
-  });
+      checkboxes.forEach(cb => {
+        const subject = cb.dataset.subject;
+        if (!dayData[subject]) dayData[subject] = { attended: 0, total: 0 };
+        dayData[subject].total++;
+        if (cb.checked) dayData[subject].attended++;
+      });
 
-  let data = JSON.parse(localStorage.getItem("attendanceData") || "{}");
-  data[date] = dayData; // ✅ Overwrites old record if it exists
-  localStorage.setItem("attendanceData", JSON.stringify(data));
+      let data = JSON.parse(localStorage.getItem("attendanceData") || "{}");
+      data[date] = dayData; // ✅ Overwrites old record if it exists
+      localStorage.setItem("attendanceData", JSON.stringify(data));
 
-  alert("Attendance saved/updated for " + date);
-}
-
+      alert("Attendance saved/updated for " + date);
+    }
 
     // 📌 Calculate stats between two dates
     function calculateStats() {
